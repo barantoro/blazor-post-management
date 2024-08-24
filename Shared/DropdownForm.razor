@@ -1,0 +1,98 @@
+@using System.ComponentModel.DataAnnotations
+@inject NotificationService NotificationService
+
+<Dropdown Color="DropdownColor.Secondary">
+    <DropdownToggleButton class="toggle-btn">
+        @* <Icon Name="IconName.ThreeDots" /> *@
+    </DropdownToggleButton>
+    <DropdownMenu Class="px-4 py-3" Style="width:480px;">
+        <EditForm EditContext="@editContext" OnValidSubmit="HandleOnValidSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label class="form-label">Title: <span class="text-danger">*</span></label>
+                <InputText @bind-Value="Post.Title" class="form-control" placeholder="Enter title" />
+                <ValidationMessage For="@(() => Post.Title)" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Body: <span class="text-danger">*</span></label>
+                <InputTextArea @bind-Value="Post.Body" class="form-control" placeholder="Enter body" rows="4" />
+                <ValidationMessage For="@(() => Post.Body)" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-12 text-right">
+                    <Button Type="ButtonType.Button" Color="ButtonColor.Secondary" Class="float-end"
+                        @onclick="ResetForm">Cancel</Button>
+                    <Button Type="ButtonType.Button" Color="ButtonColor.Danger" Class="float-end me-2"
+                        @onclick="HandleOnDelete">Delete</Button>
+                    <Button Type="ButtonType.Submit" Color="ButtonColor.Success" Class="float-end me-2">Save</Button>
+                </div>
+            </div>
+        </EditForm>
+    </DropdownMenu>
+</Dropdown>
+
+@code {
+    [Parameter]
+    public EventCallback<Post> OnSave { get; set; }
+
+    [Parameter]
+    public EventCallback<Post> OnDelete { get; set; }
+
+    [Parameter]
+    public Post Post { get; set; } = new();
+
+    private EditContext editContext = default!;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(Post);
+        base.OnInitialized();
+    }
+
+    protected override void OnParametersSet()
+    {
+        editContext = new EditContext(Post);
+        base.OnParametersSet();
+    }
+
+    private async Task HandleOnValidSubmit()
+    {
+        await Task.Run(() => NotificationService.NotifySave(Post));
+    }
+
+    private async Task HandleOnDelete()
+    {
+        NotificationService.NotifyDelete(Post);
+    }
+
+    private void ResetForm()
+    {
+        Post = new Post();
+        editContext = new EditContext(Post);
+    }
+}
+
+<style>
+    .valid.modified:not([type=checkbox]) {
+        outline: 1px solid #26b050;
+    }
+
+    .invalid {
+        outline: 1px solid red;
+    }
+
+    .validation-message {
+        color: red;
+    }
+
+    .toggle-btn {
+        color: #1c1c1c !important;
+        background: none !important;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+</style>

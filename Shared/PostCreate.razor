@@ -1,0 +1,45 @@
+<Modal @ref="modalInstance" title="@Title" IsVerticallyCentered="@IsVerticallyCentered">
+    <BodyTemplate>
+        @BodyContent
+    </BodyTemplate>
+    <FooterTemplate>
+        @if (FooterContent != null)
+        {
+            @FooterContent
+        }
+        else
+        {
+            <Button Color="ButtonColor.Secondary" @onclick="HideModal">Close</Button>
+            <Button Color="ButtonColor.Primary" @onclick="OnSave">Save changes</Button>
+        }
+    </FooterTemplate>
+</Modal>
+
+@code {
+    private Modal modalInstance = default!;
+
+    [Parameter]
+    public string Title { get; set; } = "Default Title";
+
+    [Parameter]
+    public bool IsVerticallyCentered { get; set; } = true;
+
+    [Parameter]
+    public RenderFragment? BodyContent { get; set; }
+
+    [Parameter]
+    public RenderFragment? FooterContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    public async Task ShowModal()
+    {
+        await modalInstance.ShowAsync();
+    }
+
+    public async Task HideModal()
+    {
+        await modalInstance.HideAsync();
+    }
+}

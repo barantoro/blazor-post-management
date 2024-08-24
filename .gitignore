@@ -1,0 +1,80 @@
+# Dotnet specific files
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Auto generated files
+Generated\
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Uncomment if you have tasks that create the project's static files in wwwroot/ outside of publish
+# wwwroot/
+
+# Publish results
+*.Publish.xml
+*.publishproj
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# StyleCop files
+StyleCopReport.xml
+
+# CodeRush generated files
+.cr/
+
+# Backup & report files from converting an old project file
+# to a newer .NET Core style project file
+Backup/
+UpgradeLog*.htm
+UpgradeLog*.xml
+
+# SQL Server files
+*.mdf
+*.ldf
+
+# Mono Auto Generated Files
+mono_crash.*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Lock file used by Windows
+*.lock
+
+# End of line normalization / text file encoding settings for git
+*~
+
+# Azure Pipelines
+# Avoid ignoring node_modules if you're using Azure Pipelines.
+# However, you should include it when running locally, for example in VS Code.
+# If using Azure Pipelines or other CI/CD tools, remove the node_modules/ entry below.
+node_modules/

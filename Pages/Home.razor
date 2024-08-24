@@ -1,0 +1,162 @@
+﻿@page "/"
+@inject HttpClient Http
+@inject PostService PostService
+@inject UserService UserService
+@inject NotificationService NotificationService
+
+<PageTitle>Home</PageTitle>
+
+@if (posts == null)
+{
+    <div class="loader">
+    <p><em>Loading...</em>
+        <Spinner />
+    </p>
+</div>
+}
+else
+{
+    <div class="card p-3">
+
+    <div class="searchbar mb-4">
+        <input type="text" class="form-control" placeholder="Search by title or description.." @bind="searchText"
+            @oninput="FilterPosts">
+        <Button Color="ButtonColor.Primary" @onclick="ShowModal" class="create-btn">Create Post</Button>
+    </div>
+
+    <DataTable Posts="filteredPosts" Users="users" />
+
+    <PostCreate @ref="reusableModal" Title="Create New Post" IsVerticallyCentered="true" OnSave="CreatePost">
+        <BodyContent>
+            <div class="create-post-wrapper">
+                <select class="form-control" @bind="newPost.UserID">
+                    <option value="0" selected disabled>Select a user</option>
+                    @if (users != null)
+                        {
+                            foreach (var user in users)
+                            {
+                                <option value="@user.Id">
+                                    @user.Username
+                                </option>
+                            }
+                        }
+                    </select>
+                    <input type="text" class="form-control mt-4" placeholder="Title" @bind="newPost.Title">
+                    <textarea class="form-control mt-4" placeholder="Body" @bind="newPost.Body" rows="4"></textarea>
+                </div>
+            </BodyContent>
+        </PostCreate>
+
+
+    </div>
+}
+
+@code {
+    [Inject] protected ToastService ToastService { get; set; } = default!;
+    private Post[]? posts;
+    private User[]? users;
+
+    private string searchText = string.Empty;
+    private Post[] filteredPosts;
+
+    private PostCreate reusableModal = default!;
+
+    private Post newPost = new Post
+        {
+            Title = "",
+            Body = "",
+            ID = 99999,
+            UserID = 99999
+        };
+
+    protected override async Task OnInitializedAsync()
+    {
+        posts = (await PostService.FetchPostsAsync()).ToArray();
+        users = (await UserService.FetchUsersAsync()).ToArray();
+        filteredPosts = posts;
+        NotificationService.OnSave += HandleSave;
+        NotificationService.OnDelete += HandleDelete;
+    }
+
+    private void FilterPosts()
+    {
+        if (string.IsNullOrWhiteSpace(searchText))
+        {
+            filteredPosts = posts;
+        }
+        else
+        {
+            filteredPosts = posts?
+            .Where(post =>
+            post.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+            post.Body.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        }
+    }
+
+    private async void HandleSave(Post updatedPost)
+    {
+        try
+        {
+            var response = await PostService.UpdatePostAsync(updatedPost.ID, updatedPost);
+            ToastService.Notify(new(ToastType.Success, $"Post {updatedPost.ID} updated!"));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            ToastService.Notify(new(ToastType.Danger, $"Error: {ex.Message}."));
+        }
+    }
+
+    private async void HandleDelete(Post postToDelete)
+    {
+        try
+        {
+            bool isSuccess = await PostService.DeletePostAsync(postToDelete.ID);
+            if (isSuccess)
+            {
+                ToastService.Notify(new(ToastType.Success, $"Post successfully deleted!"));
+            }
+            else
+            {
+                ToastService.Notify(new(ToastType.Danger, $"Failed to delete the post."));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            ToastService.Notify(new(ToastType.Danger, $"Error: {ex.Message}."));
+        }
+    }
+    private async Task CreatePost()
+    {
+        try
+        {
+            var (isSuccess, createdPost) = await PostService.CreatePostAsync(newPost);
+
+            if (isSuccess)
+            {
+                ToastService.Notify(new(ToastType.Success, $"Post successfully created!"));
+            }
+            else
+            {
+                ToastService.Notify(new(ToastType.Danger, $"Failed to create the post."));
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            ToastService.Notify(new(ToastType.Danger, $"Error: {ex.Message}."));
+        }
+    }
+
+    private async Task ShowModal()
+    {
+        await reusableModal.ShowModal();
+    }
+
+    private async Task HideModal()
+    {
+        await reusableModal.HideModal();
+    }
+}

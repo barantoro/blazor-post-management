@@ -1,0 +1,101 @@
+@* DataTable.razor *@
+
+<div class="table-wrapper">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark text-light">
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Body</th>
+                <th>User</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Posts != null)
+            {
+                foreach (var post in Posts)
+                {
+                    <tr>
+                        <td>@post.ID</td>
+                        <td>@post.Title</td>
+                        <td>@post.Body</td>
+                        <td>@GetUserName(post.UserID)</td>
+                        <td>
+                            <DropdownForm Post="@post" />
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5">No data available</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public Post[]? Posts { get; set; }
+
+    [Parameter]
+    public User[]? Users { get; set; }
+
+    private Dictionary<int, string>? userDictionary;
+
+    protected override void OnParametersSet()
+    {
+        if (Users != null)
+        {
+            userDictionary = Users.ToDictionary(user => user.Id, user => user.Name ?? "No Name");
+        }
+    }
+    private string GetUserName(int userId)
+    {
+        if (userDictionary != null && userDictionary.TryGetValue(userId, out var userName))
+        {
+            return userName;
+        }
+        return "Unknown User";
+    }
+}
+
+<style>
+    table {
+        border-spacing: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+    }
+
+    thead {
+        color: #5d596c;
+        background: #fff;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+    }
+
+    thead th {
+        border-bottom: 1px solid #f8f7fa;
+        font-size: 14px;
+    }
+
+    tbody {
+        font-size: 14px;
+    }
+
+    td,
+    th {
+        border: 1px solid transparent;
+        text-align: left;
+        padding: 0.25rem 1.25rem;
+    }
+
+    tr:nth-child(even) {
+        background-color: #f4f4f5;
+    }
+</style>
