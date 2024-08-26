@@ -3,13 +3,18 @@
 <div class="table-wrapper">
     <table class="table table-striped table-hover">
         <thead class="table-dark text-light">
-            <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Body</th>
-                <th>User</th>
-                <th>Actions</th>
-            </tr>
+            @if (Headers != null)
+            {
+                foreach (var header in Headers)
+                {
+                    <tr>
+                        @foreach (var item in header.Items)
+                        {
+                            <th>@item</th>
+                        }
+                    </tr>
+                }
+            }
         </thead>
         <tbody>
             @if (Posts != null)
@@ -40,6 +45,9 @@
 @code {
     [Parameter]
     public Post[]? Posts { get; set; }
+
+    [Parameter]
+    public Header[]? Headers { get; set; }
 
     [Parameter]
     public User[]? Users { get; set; }

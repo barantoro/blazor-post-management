@@ -8,53 +8,55 @@
 
 @if (posts == null)
 {
-    <div class="loader">
-    <p><em>Loading...</em>
-        <Spinner />
-    </p>
-</div>
+        <div class="loader">
+        <p><em>Loading...</em>
+            <Spinner />
+        </p>
+    </div>
 }
 else
 {
-    <div class="card p-3">
+        <div class="card p-3">
 
-    <div class="searchbar mb-4">
-        <input type="text" class="form-control" placeholder="Search by title or description.." @bind="searchText"
-            @oninput="FilterPosts">
-        <Button Color="ButtonColor.Primary" @onclick="ShowModal" class="create-btn">Create Post</Button>
-    </div>
+        <div class="searchbar mb-4">
+            <input type="text" class="form-control" placeholder="Search by title or description.." @bind="searchText"
+                @onkeyup="FilterPosts">
+            <Button Color="ButtonColor.Primary" @onclick="ShowModal" class="create-btn">Create Post</Button>
+        </div>
 
-    <DataTable Posts="filteredPosts" Users="users" />
+        <DataTable Headers="headers" Posts="filteredPosts" Users="users" />
 
-    <PostCreate @ref="reusableModal" Title="Create New Post" IsVerticallyCentered="true" OnSave="CreatePost">
-        <BodyContent>
-            <div class="create-post-wrapper">
-                <select class="form-control" @bind="newPost.UserID">
-                    <option value="0" selected disabled>Select a user</option>
-                    @if (users != null)
+        <PostCreate @ref="reusableModal" Title="Create New Post" IsVerticallyCentered="true" OnSave="CreatePost">
+            <BodyContent>
+                <div class="create-post-wrapper">
+                    <select class="form-control" @bind="newPost.UserID">
+                        <option value="0" selected disabled>Select a user</option>
+                        @if (users != null)
                         {
                             foreach (var user in users)
                             {
-                                <option value="@user.Id">
+                                            <option value="@user.Id">
                                     @user.Username
-                                </option>
+                                            </option>
                             }
                         }
-                    </select>
-                    <input type="text" class="form-control mt-4" placeholder="Title" @bind="newPost.Title">
-                    <textarea class="form-control mt-4" placeholder="Body" @bind="newPost.Body" rows="4"></textarea>
-                </div>
-            </BodyContent>
-        </PostCreate>
+                        </select>
+                        <input type="text" class="form-control mt-4" placeholder="Title" @bind="newPost.Title">
+                        <textarea class="form-control mt-4" placeholder="Body" @bind="newPost.Body" rows="4"></textarea>
+                    </div>
+                </BodyContent>
+            </PostCreate>
 
 
-    </div>
+        </div>
 }
 
 @code {
     [Inject] protected ToastService ToastService { get; set; } = default!;
     private Post[]? posts;
     private User[]? users;
+
+    private Header[]? headers;
 
     private string searchText = string.Empty;
     private Post[] filteredPosts;
@@ -71,6 +73,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        headers = new Header[]
+        {
+            new Header { Items = new string[] { "ID", "Title", "Body", "User", "Actions" } },
+        };
         posts = (await PostService.FetchPostsAsync()).ToArray();
         users = (await UserService.FetchUsersAsync()).ToArray();
         filteredPosts = posts;
@@ -136,6 +142,7 @@ else
 
             if (isSuccess)
             {
+                await HideModal();
                 ToastService.Notify(new(ToastType.Success, $"Post successfully created!"));
             }
             else
